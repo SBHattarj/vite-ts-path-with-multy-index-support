@@ -52,7 +52,10 @@ const hasMultyIndex = async (module: string, root: string = process.cwd()) => {
 
 const resolveRootBareImport = async (id: string, root: string, allowedExtensions: string[]) => {
     const fullPath = normalizePath(path.resolve(root, id))
-    const posibleImports = await fg(`${fullPath}@(${allowedExtensions.join("|")})`)
+    const posibleImports = [
+        ...(await fg(`${fullPath}@(${allowedExtensions.join("|")})`)), 
+        ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`))
+    ]
     for(const extension of allowedExtensions) {
         const matchedImport = posibleImports.find( Import => Import.endsWith(extension));
         if(matchedImport != null) return matchedImport
@@ -121,7 +124,7 @@ export default function viteTspathWithMultyIndexSupport(
                 const allowedExtensions = viteConfig?.resolve?.extensions ?? extensions
 
                 const packageInfo = await getPackageJson(id, importer)
-                if(packageInfo == null) return (moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution) === "classic" ?  await resolveRootBareImport(id, root, allowedExtensions) : null
+                if(packageInfo == null) return (moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution ?? "classic") === "classic" ?  await resolveRootBareImport(id, root, allowedExtensions) : null
                 const main = resolveMainFromPackage(packageInfo.packageJson, options?.ssr)
                 const resolvedId = path.resolve(packageInfo.moduleDir, main)
                 const doesModuleExists = await fs.pathExists(resolvedId)
