@@ -79,7 +79,7 @@ export default function viteTspathWithMultyIndexSupport(
 ): {
     name: string,
     enforce: "pre",
-    resolveId: (path: string, importer?: string, options?: {ssr?: boolean}) => Promise<string | void>,
+    resolveId: (path: string, importer?: string, options?: {ssr?: boolean}) => Promise<string | null | undefined>,
     config: (config: UserConfig) => Promise<UserConfig>
 } {
     const relativeAbsolutePrefixes = ["./", "../", "/"]
