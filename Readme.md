@@ -1,6 +1,6 @@
 # Vite Ts Path With Multy Index Support
 
-This npm package was creaed for my personal use, so a lot more testing is required. It is only tested on linux.
+This npm package was created for my personal use, so a lot more testing is required. It is only tested on linux.
 
 If you still wanna use this package here is a description of how it works.
 
