@@ -1,6 +1,6 @@
 {
   "name": "vite-ts-path-with-multy-index-support",
-  "version": "1.2.1d",
+  "version": "1.2.01f",
   "main": "./lib/plugin/plugin.js",
   "type": "module",
   "scripts": {
