@@ -1,6 +1,6 @@
 {
   "name": "vite-ts-path-with-multy-index-support",
-  "version": "1.1.1c",
+  "version": "1.1.1d",
   "main": "./lib/plugin/plugin.js",
   "type": "module",
   "scripts": {
@@ -10,19 +10,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blitzjs/rpc": "^2.0.0-alpha.47",
+    "@chialab/cjs-to-esm": "^0.16.0",
     "@types/fs-extra": "^9.0.13",
+    "blitz": "^2.0.0-alpha.47",
+    "cjs2esmodule": "^1.1.1",
+    "cjstoesm": "^2.1.2",
     "fast-glob": "^3.2.11",
     "fs-extra": "^10.1.0",
     "get-tsconfig": "^4.1.0",
+    "next": "^12.1.6",
     "npm-module-path": "^2.0.2",
     "package-json-type": "^1.0.3"
   },
   "devDependencies": {
-    "@blitzjs/rpc": "^2.0.0-alpha.47",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^1.3.0",
-    "blitz": "^2.0.0-alpha.46",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^4.6.3",
