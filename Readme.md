@@ -21,7 +21,7 @@ export default defineConfig({
 
 ```
 It only exports one function as seen here.
-## Ittakes one optional object as it's argument. It has the given attributes:
+## It takes one optional object as it's argument. It has the given attributes:
 - **root**: ```string``` to set the root of the project. by default it would be the root set in vite config, if not set then it uses baseUrl of tsConfig, if not set uses ```process.cwd()```. It is used to resolve bare import from root when module resolution is classic in ts.
 - **exclude**: ```string[]```  exclude certain modules from being resolved by this plugin. It by default will also exclude certain modules added at vite config.
 - **extensions**: ```string[]``` extensions to look for when doing root import. It will look for the import and get the first match in the same order as given.it is not used if extensions is defined within resolve of vite config. This defaults to:
