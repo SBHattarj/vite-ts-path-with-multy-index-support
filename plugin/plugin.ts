@@ -70,6 +70,8 @@ const resolveModule = async (
     process.cwd()
 ) => {
     const moduleDir = await resolveModuleDir(moduleId, importer, root)
+    const posibleImport = (await posibleExtensions.reduce(async (posibleImports, extension) => [...(await posibleImports), ...(await fg(`${moduleDir}${extension}`))], Promise.resolve([]) as Promise<string[]>))[0]
+    if(posibleImport != null) return posibleImport
     if(typeof moduleDir !== "string") return
     const packageInfo = await getPackageJson(moduleId, importer, root, moduleDir)
     if(packageInfo == null) return
@@ -131,11 +133,11 @@ export default function viteTspathWithMultyIndexSupport(
         async config(config) {
             viteConfig = config
             for(const module of allDependencies) {
-                // if(
-                //     config.resolve?.dedupe?.includes(module) 
-                //     || config.optimizeDeps?.include?.includes(module)
-                //     || exclude.includes(module)
-                // ) continue
+                if(
+                    config.resolve?.dedupe?.includes(module) 
+                    || config.optimizeDeps?.include?.includes(module)
+                    || exclude.includes(module)
+                ) continue
                 if(await hasMultyIndex(module)) moduleWithMultyIndex.push(module)
             }
             config.optimizeDeps = {
@@ -150,7 +152,7 @@ export default function viteTspathWithMultyIndexSupport(
         async resolveId(id, importer, options) {
             try {
                 if(importer == null) return
-                // if(needTransform.includes(importer)) needTransform.push(id)
+                if(needTransform.includes(importer)) needTransform.push(id)
                 if(
                     relativeAbsolutePrefixes.some(
                         prefix => id.startsWith(prefix) 
