@@ -12,7 +12,7 @@ npm i vite-ts-path-with-multy-index-support
 you can use this as follows:
 ```js
 import { defineConfig } from 'vite'
-import viteTspathWithMultyIndexSuport from "./plugin/plugin"
+import viteTspathWithMultyIndexSuport from "vite-ts-with-multy-index-support"
 // https://vitejs.dev/config/
 export default defineConfig({
   
