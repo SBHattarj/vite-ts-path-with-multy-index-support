@@ -95,7 +95,6 @@ const resolveRootBareImport = async (id: string, root: string, allowedExtensions
         ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`)),
         ...(await fg(`${fullPath}`))
     ]
-    console.log(id, posibleImports)
 
     for(const extension of allowedExtensions) {
         const matchedImport = posibleImports.find( Import => Import.endsWith(extension));
@@ -174,7 +173,6 @@ export default function viteTspathWithMultyIndexSupport(
                 const root = path.resolve(pluginOptions.root ?? viteConfig.root ?? tsConfig?.compilerOptions?.baseUrl ?? "./")
                 const allowedExtensions = viteConfig?.resolve?.extensions ?? extensions
                 const resolvedModule = (await resolveModule(id, importer, options?.ssr))
-                console.log(id)
                 const resolvedId = resolvedModule ?? ((
                         moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution ?? "classic"
                     ) === "classic" ?  (await resolveRootBareImport(id, root, allowedExtensions)) : null)
