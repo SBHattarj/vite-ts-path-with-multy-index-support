@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import logo from './logo.svg'
+import logo from 'src/logo.svg'
 import './App.css'
 import "blitz"
-import "@blitzjs/rpc"
 
 function App() {
   const [count, setCount] = useState(0)

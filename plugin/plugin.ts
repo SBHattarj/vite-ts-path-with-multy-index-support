@@ -5,9 +5,15 @@ import path from "path"
 import fs from "fs-extra"
 import { IPackageJson } from "package-json-type"
 import { normalizePath } from "vite"
-import fg from "fast-glob"
+import fglob from "fast-glob"
 import {transform} from "@chialab/cjs-to-esm"
-
+const fg = async (...args: Parameters<typeof fglob>) => {
+    try {
+        return await fglob(...args)
+    } catch {
+        return []
+    }
+}
 const resolveMainFromPackage = (config: IPackageJson, ssr?: boolean): string => {
     if(ssr) config.module ?? config.main ?? "./index.js"
     if(config.browser == null) return config.module ?? config.main ?? "./index.js"
@@ -89,6 +95,8 @@ const resolveRootBareImport = async (id: string, root: string, allowedExtensions
         ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`)),
         ...(await fg(`${fullPath}`))
     ]
+    console.log(id, posibleImports)
+
     for(const extension of allowedExtensions) {
         const matchedImport = posibleImports.find( Import => Import.endsWith(extension));
         if(matchedImport != null) return matchedImport
@@ -105,7 +113,11 @@ export default function viteTspathWithMultyIndexSupport(
             '.jsx',
             '.tsx',
             '.json',
-            'cjs'
+            '.cjs',
+            '.svg',
+            '.png',
+            '.jpeg',
+            '.ico'
         ],
         moduleResolution,
         ...pluginOptions
@@ -162,6 +174,7 @@ export default function viteTspathWithMultyIndexSupport(
                 const root = path.resolve(pluginOptions.root ?? viteConfig.root ?? tsConfig?.compilerOptions?.baseUrl ?? "./")
                 const allowedExtensions = viteConfig?.resolve?.extensions ?? extensions
                 const resolvedModule = (await resolveModule(id, importer, options?.ssr))
+                console.log(id)
                 const resolvedId = resolvedModule ?? ((
                         moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution ?? "classic"
                     ) === "classic" ?  (await resolveRootBareImport(id, root, allowedExtensions)) : null)
