@@ -86,7 +86,8 @@ const resolveRootBareImport = async (id: string, root: string, allowedExtensions
     const fullPath = normalizePath(path.resolve(root, id))
     const posibleImports = [
         ...(await fg(`${fullPath}@(${allowedExtensions.join("|")})`)), 
-        ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`))
+        ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`)),
+        ...(await fg(`${fullPath}`))
     ]
     for(const extension of allowedExtensions) {
         const matchedImport = posibleImports.find( Import => Import.endsWith(extension));
