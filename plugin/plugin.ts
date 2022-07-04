@@ -119,7 +119,6 @@ export default function viteTspathWithMultyIndexSupport(
 } {
     const transformMap: {[id: string]: string} = {}
     const resolveMap: {[id: string]: string} = {}
-    const needTransform: string[] = []
     const relativeAbsolutePrefixes = ["./", "../", "/"]
     const tsConfig = getTsconfig()?.config
     let viteConfig: UserConfig = {}
@@ -152,7 +151,6 @@ export default function viteTspathWithMultyIndexSupport(
         async resolveId(id, importer, options) {
             try {
                 if(importer == null) return
-                if(needTransform.includes(importer)) needTransform.push(id)
                 if(
                     relativeAbsolutePrefixes.some(
                         prefix => id.startsWith(prefix) 
@@ -168,25 +166,21 @@ export default function viteTspathWithMultyIndexSupport(
                     ) === "classic" ?  (await resolveRootBareImport(id, root, allowedExtensions)) : null)
                 if(resolvedId == null) return
                 resolveMap[id] = resolvedId
-                needTransform.push(resolvedId)
                 return resolvedId
             } catch {}
         },
         load(id) {
             if(!(id in transformMap)) return
-            needTransform.filter(ID => ID !== id)
             return transformMap[id]
         },
         async transform(code, id) {
             if(code.includes("//!=transformed-commonJS-esm")) return
             if(id.replace(/\?[^?\/\\]*/, "").endsWith(".mjs") || id.endsWith(".ts")) return
             if(
-                !needTransform.includes(id) 
-                && !code.includes("require") 
+                !code.includes("require") 
                 && !code.includes("module") 
                 && !code.includes("exports")
             ) return
-            if(id.includes("with-router")) return
             try {
                 const compiledCode = (await transform(code))?.code
                 transformMap[id] = `${compiledCode}//!=transformed-commonJS-esm`
