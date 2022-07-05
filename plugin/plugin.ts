@@ -9,6 +9,7 @@ import fglob from "fast-glob"
 import {transform} from "@chialab/cjs-to-esm"
 const fg = async (...args: Parameters<typeof fglob>) => {
     try {
+        if(args[0].includes("\0")) return []
         return await fglob(...args)
     } catch {
         return []
@@ -125,7 +126,7 @@ export default function viteTspathWithMultyIndexSupport(
     name: string,
     enforce: "pre",
     resolveId: (path: string, importer?: string, options?: {ssr?: boolean}) => Promise<string | null | undefined>,
-    config: (config: UserConfig) => Promise<UserConfig>,
+    config: (config: UserConfig, env: {mode: string, command: string}) => Promise<UserConfig | void>,
     transform: (code: string, id: string, options?: {ssr?: boolean}) => Promise<string | null | undefined | void>,
     load: (id: string) => string | null | undefined
 } {
@@ -141,7 +142,7 @@ export default function viteTspathWithMultyIndexSupport(
     return {
         name: "vite-ts-path-with-multy-index-support",
         enforce: "pre",
-        async config(config) {
+        async config(config, env) {
             viteConfig = config
             for(const module of allDependencies) {
                 if(
@@ -158,6 +159,7 @@ export default function viteTspathWithMultyIndexSupport(
                     ...moduleWithMultyIndex
                 ]
             }
+            if(env.command === "build") return
             return config
         },
         async resolveId(id, importer, options) {
@@ -172,10 +174,10 @@ export default function viteTspathWithMultyIndexSupport(
                 if(id in resolveMap) return resolveMap[id]
                 const root = path.resolve(pluginOptions.root ?? viteConfig.root ?? tsConfig?.compilerOptions?.baseUrl ?? "./")
                 const allowedExtensions = viteConfig?.resolve?.extensions ?? extensions
-                const resolvedModule = (await resolveModule(id, importer, options?.ssr))
-                const resolvedId = resolvedModule ?? ((
+                const resolvedId = ((
                         moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution ?? "classic"
                     ) === "classic" ?  (await resolveRootBareImport(id, root, allowedExtensions)) : null)
+                    ?? (await resolveModule(id, importer, options?.ssr))
                 if(resolvedId == null) return
                 resolveMap[id] = resolvedId
                 return resolvedId
