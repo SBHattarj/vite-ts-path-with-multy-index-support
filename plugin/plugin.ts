@@ -89,8 +89,8 @@ const resolveModule = async (
     return resolvedId
 }
 
-const resolveRootBareImport = async (id: string, root: string, allowedExtensions: string[]) => {
-    const fullPath = normalizePath(path.resolve(root, id))
+export const resolveRootBareImport = async (id: string, root: string, allowedExtensions: string[]) => {
+    const fullPath = normalizePath(id.includes(root) ? id : path.resolve(root, id))
     const posibleImports = [
         ...(await fg(`${fullPath}@(${allowedExtensions.join("|")})`)), 
         ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`)),
