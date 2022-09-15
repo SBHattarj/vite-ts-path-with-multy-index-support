@@ -1,4 +1,4 @@
-# Vite Ts Path With Multy Index Support
+# Vite Multy Index Support
 
 This npm package was created for my personal use, so a lot more testing is required. It is only tested on linux.
 
@@ -12,11 +12,11 @@ npm i vite-ts-path-with-multy-index-support
 you can use this as follows:
 ```js
 import { defineConfig } from 'vite'
-import viteTspathWithMultyIndexSuport from "vite-ts-with-multy-index-support"
+import viteMultyIndexSuport from "vite-multy-index-support"
 // https://vitejs.dev/config/
 export default defineConfig({
   
-  plugins: [viteTspathWithMultyIndexSuport()]
+  plugins: [viteMultyIndexSuport()]
 })
 
 ```
@@ -35,6 +35,5 @@ It only exports one function as seen here.
     '.json'
 ]
 ```
-- **moduleResolution**: ```"classic" | "node"``` same as the compilerOption of  the same name for tsconfig. It is only used to check if bare root import should be done.
 
 If you would like to you can help me out with windows integration, better documentation and project structure.

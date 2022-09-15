@@ -89,20 +89,6 @@ const resolveModule = async (
     return resolvedId
 }
 
-export const resolveRootBareImport = async (id: string, root: string, allowedExtensions: string[]) => {
-    const fullPath = normalizePath(id.startsWith(root) ? id : path.resolve(root, id))
-    const posibleImports = [
-        ...(await fg(`${fullPath}@(${allowedExtensions.join("|")})`)), 
-        ...(await fg(`${fullPath}/index@(${allowedExtensions.join("|")})`)),
-        ...(await fg(`${fullPath}`))
-    ]
-
-    for(const extension of allowedExtensions) {
-        const matchedImport = posibleImports.find( Import => Import.endsWith(extension));
-        if(matchedImport != null) return matchedImport
-    }
-}
-
 export default function viteTspathWithMultyIndexSupport(
     {
         exclude = [], 
@@ -119,7 +105,6 @@ export default function viteTspathWithMultyIndexSupport(
             '.jpeg',
             '.ico'
         ],
-        moduleResolution,
         ...pluginOptions
     }: {root?: string, exclude?: string[], extensions?: string[], moduleResolution?: "classic" | "node" } = {}
 ): {
@@ -174,10 +159,7 @@ export default function viteTspathWithMultyIndexSupport(
                 if(id in resolveMap) return resolveMap[id]
                 const root = path.resolve(pluginOptions.root ?? viteConfig.root ?? tsConfig?.compilerOptions?.baseUrl ?? "./")
                 const allowedExtensions = viteConfig?.resolve?.extensions ?? extensions
-                const resolvedId = ((
-                        moduleResolution ?? tsConfig?.compilerOptions?.moduleResolution ?? "classic"
-                    ) === "classic" ?  (await resolveRootBareImport(id, root, allowedExtensions)) : null)
-                    ?? (await resolveModule(id, importer, options?.ssr))
+                const resolvedId = await resolveModule(id, importer, options?.ssr)
                 if(resolvedId == null) return
                 resolveMap[id] = resolvedId
                 return resolvedId
