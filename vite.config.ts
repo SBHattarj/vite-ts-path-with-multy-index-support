@@ -13,13 +13,19 @@ export default defineConfig({
     name: "cjs-to-esm",
     async transform(code, id, options) {
     console.log(id)
-    if(id.includes("with-router")) console.log(await transform(code))
-        if(id.replace(/\?[^?\/\\]*/, "").endsWith(".mjs") || id.endsWith(".ts")) return
-        try {
-            return await transform(code)
+    // if(id.includes("with-router")) console.log(await transform(code))
+    //     if(id.replace(/\?[^?\/\\]*/, "").endsWith(".mjs") || id.endsWith(".ts")) return
+    //     try {
+    //         return await transform(code)
 
-        } catch {}
+    //     } catch {}
     },
     enforce: "pre"
-}]
+  }],
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      
+    }
+  }
 })
