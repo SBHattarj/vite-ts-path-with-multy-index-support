@@ -2,9 +2,9 @@ import {getTsconfig} from "get-tsconfig"
 import { UserConfig } from "vite"
 import { resolveOne } from "npm-module-path"
 import path from "path"
-import fs from "fs-extra"
+import fs, { promises } from "fs-extra"
 import { IPackageJson } from "package-json-type"
-import { normalizePath } from "vite"
+import { normalizePath, Plugin } from "vite"
 import fglob from "fast-glob"
 import {transform} from "@chialab/cjs-to-esm"
 const fg = async (...args: Parameters<typeof fglob>) => {
@@ -113,14 +113,7 @@ export default function viteTspathWithMultyIndexSupport(
         ],
         ...pluginOptions
     }: {root?: string, exclude?: string[], extensions?: string[], moduleResolution?: "classic" | "node" } = {}
-): {
-    name: string,
-    enforce: "pre",
-    // resolveId: (path: string, importer?: string, options?: {ssr?: boolean}) => Promise<string | null | undefined>,
-    config: (config: UserConfig, env: {mode: string, command: string}) => Promise<UserConfig | void>,
-    // transform: (code: string, id: string, options?: {ssr?: boolean}) => Promise<string | null | undefined | void>,
-    // load: (id: string) => string | null | undefined
-} {
+): Plugin {
     const transformMap: {[id: string]: string} = {}
     const resolveMap: {[id: string]: string} = {}
     const relativeAbsolutePrefixes = ["./", "../", "/"]
@@ -142,6 +135,23 @@ export default function viteTspathWithMultyIndexSupport(
                     || exclude.includes(module)
                 ) continue
                 if(await hasMultyIndex(module)) moduleWithMultyIndex.push(module)
+            }
+            if(env.mode === "production") {
+                const compiledModuleRaw = await Promise.all(moduleWithMultyIndex.map(async module => {
+                    return [module, await resolveModule(module, process.cwd(), (env as any).ssrBuild)] as [string, undefined | string]
+                }))
+                const compiledModules = Object.fromEntries(compiledModuleRaw.filter(([_, module]) => module != null) as [string, string][])
+                console.log(compiledModules)
+                return {
+                    ...config,
+                    resolve: {
+                        ...(config.resolve ?? {}),
+                        alias: {
+                            ...compiledModules,
+                            ...(config.resolve?.alias ?? {})
+                        }
+                    }
+                }
             }
             const compiledModulesRaw = await Promise.all(moduleWithMultyIndex.map(async module => {
                 const ssrId = await resolveModule(module, process.cwd(), true)
@@ -186,15 +196,24 @@ export default function viteTspathWithMultyIndexSupport(
                 return module
             }))
             const compiledModules = compiledModulesRaw.filter(module => module != null).reduce((compiledModules, module) => ({...compiledModules, [module ?? "\0"]: `dev-${module}`, [`raw-${module}`]: module}), {})
-            config.resolve = {
-                ...(config.resolve ?? {}),
-                alias: {
-                    ...compiledModules,
-                    ...(config.resolve?.alias ?? {})
+            // config.resolve = {
+            //     ...(config.resolve ?? {}),
+            //     alias: {
+            //         ...compiledModules,
+            //         ...(config.resolve?.alias ?? {})
+            //     }
+            // }
+            
+            return {
+                ...config,
+                resolve: {
+                    ...(config.resolve ?? {}),
+                    alias: {
+                        ...compiledModules,
+                        ...(config.resolve?.alias ?? {})
+                    }
                 }
             }
-            
-            return config
         },
     //     async resolveId(id, importer, options) {
     //         try {
