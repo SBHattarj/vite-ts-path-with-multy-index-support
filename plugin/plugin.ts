@@ -141,7 +141,6 @@ export default function viteTspathWithMultyIndexSupport(
                     return [module, await resolveModule(module, process.cwd(), (env as any).ssrBuild)] as [string, undefined | string]
                 }))
                 const compiledModules = Object.fromEntries(compiledModuleRaw.filter(([_, module]) => module != null) as [string, string][])
-                console.log(compiledModules)
                 return {
                     ...config,
                     resolve: {
