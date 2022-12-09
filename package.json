@@ -1,6 +1,6 @@
 {
   "name": "vite-multy-index-support",
-  "version": "0.0.1b",
+  "version": "0.0.1c",
   "main": "./lib/plugin/plugin.js",
   "type": "module",
   "scripts": {
